@@ -1,16 +1,44 @@
-# React + Vite
+# Omega Admin Portal 🚀
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A high-performance, minimalist SaaS administrative interface built to optimize e-commerce collection management, inventory tracking, and distribution analytics. This architecture balances premium design aesthetics inspired by modern streetwear digital platforms with rigid front-end execution parameters.
 
-Currently, two official plugins are available:
+**Live Deployment:** [View Live Application (Vercel)](https://ecommerce-trial-ashy.vercel.app/)  
+**Source Code:** [GitHub Repository](https://github.com/nikhilyt01/ecommerce_trial)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🎨 Design System & Visual Strategy
+The visual framework prioritizes data clarity and modern structural layouts over cluttered enterprise interfaces, pulling inspiration from premium minimal digital storefronts.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **Typography:** Set globally to `Plus Jakarta Sans` for clean, high-legibility typographic hierarchy across dense data metrics.
+* **Color Palette:**
+    * `Primary Background (#FFFFFF)`: Applied strictly across interactive work canvases.
+    * `Secondary Background (#F9FAFB)`: Utilized for layout structures (Sidebar, Top navigation headers, table borders).
+    * `Primary Text / Active Elements (#111111)`: High-contrast deep charcoal text values ensuring accessible tracking states.
+    * `Accent Alerts (#DC2626)`: High-visibility crimson red allocated for critical indicators like data mutations and low stock thresholds.
+* **Iconography:** Rendered exclusively using the clean, linear design patterns of `lucide-react`.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🛠️ Technical Stack & Dependency Landscape
+* **Core Engine:** React 18 / 19 (via Vite for optimized build streaming and ultra-fast HMR)
+* **Routing System:** `react-router-dom` (v6 Engine managing declarative application flows)
+* **Style Processing:** Tailwind CSS (Modern functional utility architecture utilizing design configuration maps)
+* **Data Visualization:** `recharts` (Declarative SVG analytics generation container)
+* **Utility Helper Kits:** `clsx` & `tailwind-merge` (Dynamic conditional utility string resolution)
+
+---
+
+## 🏗️ Architectural Directory Structure
+The workspace structure enforces a strict feature-by-feature pattern to separate global application shells, common visual nodes, state management hooks, and localized network interfaces:
+
+```text
+src/
+ ├── components/
+ │    ├── layout/      # Core Application Shell framework (Sidebar, Topbar, MainLayout)
+ │    ├── common/      # System Design UI primitives (Button, Badge, Card components)
+ │    └── products/    # Localized product list visual tables and filtration grids
+ ├── hooks/            # Modular state sync models (useUrlState, useDebounce)
+ ├── pages/            # View managers (Dashboard, ProductList, ProductDetail)
+ ├── services/         # Isolated abstraction layer handling external REST endpoints
+ └── utils/            # Pure JavaScript text/value format helper scripts

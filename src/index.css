@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+/* Tailwind v4 Theme Tokens */
+@theme {
+  --color-primary-bg: #FFFFFF;
+  --color-secondary-bg: #F9FAFB;
+  --color-primary-text: #111111;
+  --color-muted: #6B7280;
+  --color-accent: #DC2626;
+}
+
+@layer base {
+  body {
+    @apply bg-primary-bg text-primary-text antialiased;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}

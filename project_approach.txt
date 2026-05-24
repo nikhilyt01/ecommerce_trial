@@ -1,0 +1,93 @@
+PROJECT  Nikhil_Ecommers  - FRONT-END EXECUTION PLAN
+========================================
+
+1. DESIGN SYSTEM & TOKENS (Strictly Enforced)
+---------------------------------------------
+To ensure 100% consistency across all pages (Dashboard, Product List, Product Detail), all components will use the following design tokens:
+
+- Typography: 'Plus Jakarta Sans' or 'Inter' (applied globally in index.css to the `body`).
+- Icons: `lucide-react` (Clean, modern, linear icons).
+- Color Palette (Configured in tailwind.config.js):
+  * Primary Background: #FFFFFF (Pure White) - Main content area.
+  * Secondary Background: #F9FAFB (Off-white) - Sidebar, cards, table headers.
+  * Primary Text/Headers: #111111 (Deep Charcoal) - Main text, active states.
+  * Muted Text/Borders: #6B7280 (Gray) - Subtitles, table borders, inactive icons.
+  * Accent/Alert: #DC2626 (Crimson Red) - Low stock badges, urgent alerts, delete actions.
+
+
+2. RESPONSIVENESS STRATEGY (Mobile, Tablet, Desktop)
+----------------------------------------------------
+Every component will be built mobile-first using Tailwind's breakpoint prefixes:
+- Mobile (< 768px): Sidebar hides behind a hamburger menu (Top Navigation Bar). Tables allow horizontal scrolling (`overflow-x-auto`). Data grids stack vertically (`flex-col`).
+- Tablet (768px - 1024px): Sidebar collapses to icon-only mode to save space. Two-column layouts for Analytics.
+- Desktop (> 1024px): Full expanded sidebar. Multi-column analytics grid. Full data table view.
+
+
+3. DIRECTORY STRUCTURE
+---------------------------------------------
+src/
+ ├── components/
+ │   ├── layout/       (Sidebar.jsx, Topbar.jsx, MainLayout.jsx)
+ │   ├── common/       (Button.jsx, Badge.jsx, Card.jsx - ensures design consistency)
+ │   └── products/     (ProductTable.jsx, ProductFilters.jsx)
+ ├── hooks/            (useUrlState.js, useDebounce.js)
+ ├── pages/            (Dashboard.jsx, ProductList.jsx, ProductDetail.jsx)
+ ├── services/         (api.js - centralized dummyjson fetch logic)
+ └── utils/            (formatters.js)
+
+
+4. STEP-BY-STEP IMPLEMENTATION PLAN
+---------------------------------------------
+
+PHASE 1: Project Setup & Global UI (Hours 1-2)
+- Initialize Vite + React.
+- Clean up existing boilerplate (App.jsx, index.css).
+- Install dependencies: `react-router-dom`, `lucide-react`, `recharts`, `clsx`, `tailwind-merge`.
+- Configure Tailwind colors and Google Fonts.
+- Build the `MainLayout.jsx` featuring the responsive Sidebar and Topbar. 
+- Ensure routing is set up (`/`, `/products`, `/products/:id`).
+
+PHASE 2: Custom Hooks & API Layer (Hours 2-3)
+- Create `services/api.js` to handle fetching from `https://dummyjson.com/products`.
+- Create `useDebounce.js` (Performance Optimization #1) to delay search queries.
+- Create `useUrlState.js` to sync all filters, sorting, and pagination to `react-router-dom`'s `useSearchParams`.
+
+PHASE 3: Product Listing Module (Hours 3-5)
+- Build `ProductList.jsx`.
+- Implement the Search bar (using debounce) and Category Dropdown.
+- Build the `ProductTable.jsx`.
+- Implement sorting logic (Price, Rating, Name). 
+- Wrap the table rendering logic in `useMemo` and event handlers in `useCallback` (Performance Optimizations #2 & #3).
+- Implement pagination controls interacting with the URL.
+- BONUS: Add a "Columns" dropdown to toggle visibility of table columns, saving preferences in state.
+
+PHASE 4: Analytics Dashboard (Hours 5-6)
+- Build `Dashboard.jsx`.
+- Fetch the product data and use `useMemo` to calculate: Total Products, Average Rating, and Total Inventory Value.
+- Render Key Performance Indicator (KPI) Cards using the designated color tokens.
+- Use `recharts` to render a Bar/Pie chart showing "Category Distribution".
+
+PHASE 5: Product Details Page (Hours 6-7)
+- Build `ProductDetail.jsx` utilizing the `/products/:id` route.
+- Fetch single product data based on the URL ID parameter.
+- Create an Image Carousel for the product images.
+- Display standard layout: Title, Category, Price, and Description.
+
+PHASE 6: Polishing & Bonus Features (Hours 7-8)
+- Implement "Mock Real-Time Updates" (Bonus Requirement):
+  * Create a `useEffect` inside the ProductList that runs a `setInterval` (polling every 15 seconds) to slightly adjust a random product's stock to simulate live inventory changes.
+- Add `React.memo` to individual Table Rows to prevent unnecessary re-renders when polling updates occur (Performance Optimization #4).
+- Code Review: Check thoroughly to ensure the word "HUBX" is completely absent from package.json, README, and UI.
+
+PHASE 7: Deployment (Hour 8)
+- Push to GitHub (Repository name: "project-omega-admin").
+- Connect repository to Vercel.
+- Verify routing and URL parameters work correctly in the deployed production environment.
+
+
+PHASE 8: UI Polishing & Chart Fixes (Optional / Reversible)
+---------------------------------------------
+- Invert layout background contrast: The app shell is `bg-secondary-bg` while content cards/sidebar are pure white (`bg-primary-bg`).
+- Change active sidebar items to match a modern linear style (gray background, dark text, left-border marker) rather than solid black blocks.
+- Upgrade data tables: Make `<th>` elements uppercase, smaller (`text-xs`), and wider-tracked to look like high-end SaaS data grids.
+- Fix Recharts overflow: Consolidate the long tail of categories into an "Others" slice in `Dashboard.jsx` so the legend perfectly fits inside its box.

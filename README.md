@@ -21,24 +21,37 @@ The visual framework prioritizes data clarity and modern structural layouts over
 ---
 
 ## 🛠️ Technical Stack & Dependency Landscape
+
+### Frontend
 * **Core Engine:** React 18 / 19 (via Vite for optimized build streaming and ultra-fast HMR)
 * **Routing System:** `react-router-dom` (v6 Engine managing declarative application flows)
 * **Style Processing:** Tailwind CSS (Modern functional utility architecture utilizing design configuration maps)
 * **Data Visualization:** `recharts` (Declarative SVG analytics generation container)
 * **Utility Helper Kits:** `clsx` & `tailwind-merge` (Dynamic conditional utility string resolution)
 
+### Backend API & Data
+* **Server Framework:** Express.js (Node.js engine managing RESTful endpoints)
+* **Real-time Engine:** Socket.IO (Event-driven WebSocket communication)
+* **ORM & Database:** Prisma ORM (Managing PostgreSQL connectivity and schemas)
+* **Authentication:** JWT (JSON Web Tokens) and bcryptjs for secure credential hashing
+
 ---
 
 ## 🏗️ Architectural Directory Structure
-The workspace structure enforces a strict feature-by-feature pattern to separate global application shells, common visual nodes, state management hooks, and localized network interfaces:
+The workspace structure enforces a strict pattern across both frontend and backend systems to maintain clear boundaries between client views, state management, and server endpoints:
 
 ```text
-src/
- ├── components/
- │    ├── layout/      # Core Application Shell framework (Sidebar, Topbar, MainLayout)
- │    ├── common/      # System Design UI primitives (Button, Badge, Card components)
- │    └── products/    # Localized product list visual tables and filtration grids
- ├── hooks/            # Modular state sync models (useUrlState, useDebounce)
- ├── pages/            # View managers (Dashboard, ProductList, ProductDetail)
- ├── services/         # Isolated abstraction layer handling external REST endpoints
- └── utils/            # Pure JavaScript text/value format helper scripts
+/
+ ├── backend/          # Node.js Express API and Database layer
+ │    ├── prisma/      # Prisma ORM schema and database configurations
+ │    ├── routes/      # Express route controllers (auth, products)
+ │    └── server.js    # Backend entry point and Socket.IO initialization
+ └── src/              # Frontend React Application
+      ├── components/
+      │    ├── layout/      # Core Application Shell framework (Sidebar, Topbar, MainLayout)
+      │    ├── common/      # System Design UI primitives (Button, Badge, Card components)
+      │    └── products/    # Localized product list visual tables and filtration grids
+      ├── hooks/            # Modular state sync models (useUrlState, useDebounce)
+      ├── pages/            # View managers (Dashboard, ProductList, ProductDetail)
+      ├── services/         # Isolated abstraction layer handling external REST endpoints
+      └── utils/            # Pure JavaScript text/value format helper scripts

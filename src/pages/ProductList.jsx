@@ -4,6 +4,8 @@ import { fetchProducts } from '../services/api';
 import { useUrlState } from '../hooks/useUrlState';
 import { useDebounce } from '../hooks/useDebounce';
 import ProductTable from '../components/products/ProductTable';
+import { useAuth } from '../context/AuthContext';
+import { io } from 'socket.io-client';
 
 const ALL_COLUMNS = [
   { id: 'image', label: 'Preview' },
@@ -18,6 +20,7 @@ const ALL_COLUMNS = [
 const ITEMS_PER_PAGE = 10;
 
 export default function ProductList() {
+  const { isAdmin } = useAuth();
   // 1. URL State Management
   const { searchParam, categoryParam, sortByParam, orderParam, pageParam, updateParam, updateParams } = useUrlState();
 
@@ -42,8 +45,9 @@ export default function ProductList() {
     const loadData = async () => {
       setLoading(true);
       try {
-        const data = await fetchProducts();
-        setProducts(data.products);
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+        const response = await fetch(`${API_URL}/api/products`);
+if (response.ok) { const data = await response.json(); setProducts(data.products || []); }
       } catch (error) {
         console.error("Failed to load products", error);
       } finally {
@@ -53,30 +57,21 @@ export default function ProductList() {
     loadData();
   }, []);
 
-  // 4. Bonus Requirement: Mock Real-Time Updates (Live Polling)
+  // Real-time updates via WebSocket
   useEffect(() => {
-    if (products.length === 0) return;
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+    const socket = io(API_URL);
 
-    // Poll every 15 seconds to simulate live inventory changes
-    const interval = setInterval(() => {
-      setProducts((currentProducts) => {
-        const updatedProducts = [...currentProducts];
-        const randomIndex = Math.floor(Math.random() * updatedProducts.length);
-        const product = updatedProducts[randomIndex];
-        
-        // Randomly adjust stock by -2 to +2
-        const stockChange = Math.floor(Math.random() * 5) - 2;
-        const newStock = Math.max(0, product.stock + stockChange); // Prevent negative stock
-        
-        if (newStock !== product.stock) {
-          updatedProducts[randomIndex] = { ...product, stock: newStock };
-        }
-        return updatedProducts;
+    socket.on('productUpdated', (updatedProduct) => {
+      setProducts(prevProducts => {
+        return prevProducts.map(p => p.id === updatedProduct.id ? updatedProduct : p);
       });
-    }, 15000);
+    });
 
-    return () => clearInterval(interval);
-  }, [products.length]); // Only re-bind if the entire array length changes
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   // Extract unique categories for the dropdown filter
   const categories = useMemo(() => {
@@ -87,6 +82,10 @@ export default function ProductList() {
   // Performance Optimization #2: Sort and filter inside useMemo
   const processedProducts = useMemo(() => {
     let result = [...products];
+      // Publish Filter
+      if (!isAdmin) {
+        result = result.filter(p => p.isPublished === true);
+      }
 
     // Text Filter
     if (searchParam) {
@@ -115,7 +114,7 @@ export default function ProductList() {
     });
 
     return result;
-  }, [products, searchParam, categoryParam, sortByParam, orderParam]);
+  }, [products, searchParam, categoryParam, sortByParam, orderParam, isAdmin]);
 
   // Calculate Pagination Splitting
   const paginatedProducts = useMemo(() => {
@@ -202,7 +201,7 @@ export default function ProductList() {
             {showColumnDropdown && (
               <div className="absolute right-0 mt-2 w-48 bg-primary-bg border border-gray-200 rounded-md shadow-lg z-20 p-2">
                 <div className="text-xs font-semibold text-muted uppercase tracking-wider mb-2 px-2">Toggle Columns</div>
-                {ALL_COLUMNS.map((col) => (
+                {ALL_COLUMNS.filter(col => isAdmin || col.id !== 'actions').map((col) => (
                   <label key={col.id} className="flex items-center gap-2 p-2 hover:bg-secondary-bg rounded cursor-pointer text-sm text-primary-text transition-colors">
                     <input
                       type="checkbox"
@@ -223,10 +222,11 @@ export default function ProductList() {
       <ProductTable 
         products={paginatedProducts} 
         loading={loading}
-        visibleColumns={visibleColumns}
+        visibleColumns={isAdmin ? visibleColumns : visibleColumns.filter(c => c !== 'actions')}
         sortByParam={sortByParam}
         orderParam={orderParam}
         onSort={handleSort}
+        isAdmin={isAdmin}
       />
 
       {/* Pagination Footer controls */}

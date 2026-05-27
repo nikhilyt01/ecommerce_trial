@@ -1,5 +1,5 @@
 import { useState, useLocation } from 'react'; // Import useLocation
-import { Outlet, NavLink } from 'react-router-dom'; 
+import { Outlet, NavLink, useNavigate, Navigate } from 'react-router-dom'; 
 import { 
   LayoutDashboard, 
   ShoppingBag, 
@@ -9,14 +9,28 @@ import {
   Menu, 
   X,
   Bell,
-  User
+  User,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export default function MainLayout() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { currentUser, isAdmin, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect to login if unauthenticated
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
 
   const navItems = [
-    { name: 'Analytics Dashboard', path: '/', icon: LayoutDashboard },
+    ...(isAdmin ? [{ name: 'Analytics Dashboard', path: '/', icon: LayoutDashboard }] : []),
     { name: 'Products Management', path: '/products', icon: ShoppingBag },
     // PLACEHOLDERS: Showing domain architecture without heavy logic
     { name: 'Orders Log', path: '#', icon: ShoppingCart, disabled: true },
@@ -90,9 +104,21 @@ export default function MainLayout() {
 
         {/* Bottom Profile Action */}
         <div className="p-4 border-t border-gray-200">
-          <button className="flex items-center gap-3 w-full px-3 py-2 text-muted hover:bg-gray-100 hover:text-primary-text rounded-md transition-colors">
-            <User size={20} className="shrink-0" />
-            <span className="font-medium md:hidden lg:block">Profile</span>
+          <div className="flex items-center gap-3 w-full px-3 py-2 text-primary-text rounded-md mb-2">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+              <span className="font-bold text-blue-600">{currentUser?.username?.charAt(0).toUpperCase()}</span>
+            </div>
+            <div className="flex-1 md:hidden lg:block truncate overflow-hidden">
+              <p className="font-medium truncate">{currentUser?.username}</p>
+              <p className="text-xs text-muted capitalize">{currentUser?.role}</p>
+            </div>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full px-3 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+          >
+            <LogOut size={20} className="shrink-0" />
+            <span className="font-medium md:hidden lg:block">Logout</span>
           </button>
         </div>
       </aside>

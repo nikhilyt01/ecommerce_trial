@@ -1,11 +1,9 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, ChevronLeft, ChevronRight, LayoutGrid } from 'lucide-react';
-import { fetchProducts } from '../services/api';
 import { useUrlState } from '../hooks/useUrlState';
 import { useDebounce } from '../hooks/useDebounce';
 import ProductTable from '../components/products/ProductTable';
 import { useAuth } from '../context/AuthContext';
-import { io } from 'socket.io-client';
 
 const ALL_COLUMNS = [
   { id: 'image', label: 'Preview' },
@@ -20,7 +18,9 @@ const ALL_COLUMNS = [
 const ITEMS_PER_PAGE = 10;
 
 export default function ProductList() {
+  // Auth & Publish State
   const { isAdmin } = useAuth();
+
   // 1. URL State Management
   const { searchParam, categoryParam, sortByParam, orderParam, pageParam, updateParam, updateParams } = useUrlState();
 
@@ -42,12 +42,15 @@ export default function ProductList() {
 
   // Fetch data on initial load
   useEffect(() => {
+    let intervalId;
     const loadData = async () => {
-      setLoading(true);
       try {
         const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
         const response = await fetch(`${API_URL}/api/products`);
-if (response.ok) { const data = await response.json(); setProducts(data.products || []); }
+        if (response.ok) {
+          const data = await response.json();
+          setProducts(data.products || []);
+        }
       } catch (error) {
         console.error("Failed to load products", error);
       } finally {
@@ -55,22 +58,8 @@ if (response.ok) { const data = await response.json(); setProducts(data.products
       }
     };
     loadData();
-  }, []);
-
-  // Real-time updates via WebSocket
-  useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
-    const socket = io(API_URL);
-
-    socket.on('productUpdated', (updatedProduct) => {
-      setProducts(prevProducts => {
-        return prevProducts.map(p => p.id === updatedProduct.id ? updatedProduct : p);
-      });
-    });
-
-    return () => {
-      socket.disconnect();
-    };
+    intervalId = setInterval(loadData, 5000);
+    return () => clearInterval(intervalId);
   }, []);
 
   // Extract unique categories for the dropdown filter
@@ -82,10 +71,11 @@ if (response.ok) { const data = await response.json(); setProducts(data.products
   // Performance Optimization #2: Sort and filter inside useMemo
   const processedProducts = useMemo(() => {
     let result = [...products];
-      // Publish Filter
-      if (!isAdmin) {
-        result = result.filter(p => p.isPublished === true);
-      }
+
+    // Publish Filter (Only show published if not admin)
+    if (!isAdmin) {
+      result = result.filter(p => p.isPublished); // Rely on backend field instead of isPublished context logic
+    }
 
     // Text Filter
     if (searchParam) {
@@ -201,7 +191,7 @@ if (response.ok) { const data = await response.json(); setProducts(data.products
             {showColumnDropdown && (
               <div className="absolute right-0 mt-2 w-48 bg-primary-bg border border-gray-200 rounded-md shadow-lg z-20 p-2">
                 <div className="text-xs font-semibold text-muted uppercase tracking-wider mb-2 px-2">Toggle Columns</div>
-                {ALL_COLUMNS.filter(col => isAdmin || col.id !== 'actions').map((col) => (
+                {ALL_COLUMNS.map((col) => (
                   <label key={col.id} className="flex items-center gap-2 p-2 hover:bg-secondary-bg rounded cursor-pointer text-sm text-primary-text transition-colors">
                     <input
                       type="checkbox"
@@ -222,7 +212,7 @@ if (response.ok) { const data = await response.json(); setProducts(data.products
       <ProductTable 
         products={paginatedProducts} 
         loading={loading}
-        visibleColumns={isAdmin ? visibleColumns : visibleColumns.filter(c => c !== 'actions')}
+        visibleColumns={visibleColumns}
         sortByParam={sortByParam}
         orderParam={orderParam}
         onSort={handleSort}
